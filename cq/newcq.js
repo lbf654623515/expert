@@ -10,9 +10,11 @@ $(document).ready(function(e){
      * 每一行原始数据
      */
     let allPeopleStrs;									//每个人的原始信息字符串数组，里面每个元素为没解析前的一行文本
-
 	let library={};														//新的数据容器
 
+    /**
+     * 打开文件，对打开的文件进行处理
+     */
 	$("#up").on("change",function(){//选择文件事件
 		//支持chrome IE10
 		if (window.FileReader) {
@@ -22,6 +24,12 @@ $(document).ready(function(e){
 			reader.onload = function() {
 				allPeopleStrs=this.result.split("\n");
                 parseInfoStr();
+                if (isEmpty(library)){
+                    alert("名单中没有符合规则的数据,请检查名单后再重新选择文件");
+                    return;
+                }else {
+                    $("#up").hide();
+                }
 				inittype();
 			}
 			reader.readAsText(file);
@@ -44,7 +52,7 @@ $(document).ready(function(e){
 		} else { 
 			alert('error'); 
 		}
-		$("#up").hide();
+
 	});
 
 
@@ -70,16 +78,16 @@ $(document).ready(function(e){
             }//清除单个人数组数组中的空白信息(分组中会产生空白数据分组)
 
             let fields=peopleInfos[peopleInfos.length-1].split('-');
-            if (fields.length<2) continue;
+            if (fields.length<=3) continue;
             peopleInfos[peopleInfos.length-1]=fields[0];
             peopleInfos[peopleInfos.length]=fields[1];
 
-            let pro=new Pro();
-            pro.infoindex=peopleInfos[0];
-            pro.proname=peopleInfos[1];
-            pro.com=peopleInfos[2];
-            pro.level=peopleInfos[3];
-            pro.phone=peopleInfos[4];
+            let people=new Pro();
+            people.infoindex=peopleInfos[0];
+            people.proname=peopleInfos[1];
+            people.com=peopleInfos[2];
+            people.level=peopleInfos[3];
+            people.phone=peopleInfos[4];
 
             haskey(library,fields[0],0);						//第一级专业是否加到顶级库里面
 
@@ -93,7 +101,7 @@ $(document).ready(function(e){
             haskey(tempobj,fields[3],1);
 
             tempobj=tempobj[fields[3]];
-            hasObject(tempobj,pro);
+            hasObject(tempobj,people);
         }
 	}
 
@@ -114,6 +122,11 @@ $(document).ready(function(e){
 		}
 	}
 
+    /**
+     * 查看某个人员是否已经添加过，以姓名和电话号码进行区分，如果两个都相同则只录入第一个人
+     * @param array
+     * @param object
+     */
     function hasObject(array,object){
 		let has=false;
         for (let i = 0; i <array.length ; i++) {
@@ -139,35 +152,44 @@ $(document).ready(function(e){
 			return;
 		}
 
-        let onetypeStr=$("#onetype").find("option:selected").text();
-        let twotypeStr=$("#twotype").find("option:selected").text();
-        let threetypeStr=$("#threetype").find("option:selected").text();
-        let fourtypeStr=$("#fourtype").find("option:selected").text();
-		let num=$("#renshu").val();
-        let linarray=getren(onetypeStr,twotypeStr,num);
-		if (linarray==null) {
+        /**
+         * 四个抽取条件
+         * @type {jQuery}
+         */
+        let onelastStr=$("#onetype").find("option:selected").text();
+        let twolastStr=$("#twotype").find("option:selected").text();
+        let threelastStr=$("#threetype").find("option:selected").text();
+        let fourlastStr=$("#fourtype").find("option:selected").text();
+		let neednum=$("#renshu").val();
+
+        let canGetNum=checkNum(onelastStr,twolastStr,threelastStr,fourlastStr);
+		if (canGetNum<neednum) {
 			alert("没有足够的人员进行抽取");
 			return;
 		}
 		showLoad("正在抽取中");
-		setTimeout(chouqu(linarray),10000000);
+		setTimeout(chouqu(onelastStr,twolastStr,threelastStr,fourlastStr,neednum),10000000);
 	});
 	
-	function chouqu(linarray) {
+	function chouqu(onelastStr,twolastStr,threelastStr,fourlastStr,neednum) {
+
 		setTimeout(function name() {
 			closeLoad();
+            let peoples=getPeople(onelastStr,twolastStr,threelastStr,fourlastStr,neednum);
+            if (peoples==null){
+                alert("剩余人数不足以抽取");
+                return;
+            }
             let old=$("#dispay").html();
-            let htmlstr='<table><tr><td style="width: 15%;" colspan="1">'+$("#onetype").find("option:selected").text()+'</td><td style="width: 15%;" colspan="1">'+$("#twotype").find("option:selected").text()+'</td><td style="width: 15%;" colspan="1">抽取结果</td></tr></table>';
+            let htmlstr='<table><tr><td style="width: 15%;" colspan="1">'+onelastStr+'</td><td style="width: 15%;" colspan="1">'+twolastStr+'</td><td style="width: 15%;" colspan="1">'+threelastStr+'</td><td style="width: 15%;" colspan="1">'+fourlastStr+'</td><td style="width: 15%;" colspan="1">抽取结果</td></tr></table>';
             let addstr=htmlstr+'<table border="1" style="text-align: center;">';
 
-			for (let int = 0; int < linarray.length; int++) {
-				addstr+='<tr><td style="width: 1%;" colspan="1">'+linarray[int][0]+'</td>'+
-						'<td style="width: 3%;" colspan="1">'+linarray[int][1]+'</td>'+
-						'<td style="width: 15%;" colspan="1">'+linarray[int][2]+'</td>'+
-						'<td style="width: 5%;" colspan="1">'+linarray[int][3]+'</td>'+
-						'<td style="width: 5%;" colspan="1">'+linarray[int][4]+'</td>'+
-						'<td style="width: 15%;" colspan="1">'+linarray[int][5]+'</td>'+
-						'<td style="width: 5%;" colspan="1">'+linarray[int][6]+'</td></tr>';
+			for (let index = 0; index < peoples.length; index++) {
+				addstr+='<tr><td style="width: 1%;" colspan="1">'+peoples[index].infoindex+'</td>'+
+						'<td style="width: 3%;" colspan="1">'+peoples[index].proname+'</td>'+
+						'<td style="width: 15%;" colspan="1">'+peoples[index].com+'</td>'+
+						'<td style="width: 5%;" colspan="1">'+peoples[index].level+'</td>'+
+						'<td style="width: 5%;" colspan="1">'+peoples[index].phone+'</td></tr>';
 			}
 			addstr+='</table><br>'+old;
 			$("#dispay").html(addstr);
@@ -175,130 +197,102 @@ $(document).ready(function(e){
 	}
 
     /**
-	 * 进行抽取任务
+	 * 使用指定天剑获取指定书目的人员书目，如果书目不足，将返回为空。
      * @param type1	抽取人员的第一级专业
      * @param type2	抽取人员的第二级专业
+     * @param type3	抽取人员的第三级专业
+     * @param type4	抽取人员的第四级专业
      * @param num		抽取人员的数目
-     * @returns {*}	返回的抽取对象
+     * @returns {*}	返回抽取的人员
      */
-	function getren(type1,type2,num) {
-        let num_=0;
+	function getPeople(type1,type2,type3,type4,num) {
         let linarray=[];
-		for (let int = 0; int < allPeopleInfoObjects.length; int++) {
-			if(allPeopleInfoObjects[int][5]==type1&&allPeopleInfoObjects[int][6]==type2){
-				num_++;
-			}
-		}
-		if(num_<num){
+        let peoples=library[type1][type2][type3][type4];
+		if(peoples.length<num){
 			return ;
 		}
-		for (let int2 = 0; int2 < num; int2++) {
-
-			while(true){
-                let random=Math.floor(Math.random()*allPeopleInfoObjects.length);//去一个范围为数组长度的随机数
-                let mmm=allPeopleInfoObjects.splice(random,1);//把人员取出来
-				if(mmm[0][5]==type1&&mmm[0][6]==type2){
-					linarray[int2]=mmm[0];
-					break;
-				}else{
-					allPeopleInfoObjects.push(mmm[0]);
-				}
-			}
-
+		for (let index = 0; index < num; index++) {
+            let random=Math.floor(Math.random()*peoples.length);//去一个范围为数组长度的随机数
+            let people=peoples.splice(random,1);//把人员取出来
+            linarray[index]=people[0];
 		}
-		
 		return linarray;
 	}
+
+	function checkNum(type1,type2,type3,type4) {
+        let peoples=library[type1][type2][type3][type4];
+        return peoples.length;
+    }
 	
 	function inittype() {
 		if (isEmpty(library)){
 			alert("名单内数据为空,请重新选择名单");
 			return
 		}
+        setOneType();
+        setTwotype();
+        setThreetype();
+        setFourtype();
 
-        $("#onetype option").remove();
-        $("#twotype option").remove();
-        $("#threetype option").remove();
-        $("#fourtype option").remove();
-
-
-
-        let keys=Object.keys(library);
-        for (let i = 0; i < keys.length; i++) {
-            setOneType(keys[i]);
-        }
-
-        let lastStr=$("#onetype").find("option:selected").text();
-        let lastSubObject=library[lastStr];
-        keys=Object.keys(lastSubObject);
-        for (let i = 0; i < keys.length; i++) {
-            setTwotype(keys[i]);
-        }
-
-        lastStr=$("#twotype").find("option:selected").text();
-        lastSubObject=lastSubObject[lastStr];
-        keys=Object.keys(lastSubObject);
-        for (let i = 0; i < keys.length; i++) {
-            setThreetype(keys[i]);
-        }
-
-        lastStr=$("#threetype").find("option:selected").text();
-        lastSubObject=lastSubObject[lastStr];
-        keys=Object.keys(lastSubObject);
-        for (let i = 0; i < keys.length; i++) {
-            setFourtype(keys[i]);
-        }
 
         $("#onetype").change(function() {
-            oneTypeChange();
+            setTwotype();
+            setThreetype();
+            setFourtype();
         });
         $("#twotype").change(function() {
-            bigtypeChange();
+            setThreetype();
+            setFourtype();
         });
         $("#threetype").change(function() {
-            bigtypeChange();
+            setFourtype();
         });
-
+        $("#fourtype").change(function() {
+            // let onelastStr=$("#onetype").find("option:selected").text();
+            // let twolastStr=$("#twotype").find("option:selected").text();
+            // let threelastStr=$("#threetype").find("option:selected").text();
+            // let fourlastStr=$("#fourtype").find("option:selected").text();
+        });
 	}
 
-    function setOneType(value) {
-        $("#onetype").append("<option value='"+value+"'>"+value+"</option>");
-    }
-    function setTwotype(value) {
-        $("#twotype").append("<option value='"+value+"'>"+value+"</option>");
-    }
-    function setThreetype(value) {
-        $("#threetype").append("<option value='"+value+"'>"+value+"</option>");
-    }
-    function setFourtype(value) {
-        $("#fourtype").append("<option value='"+value+"'>"+value+"</option>");
-    }
-
-    /**
-	 * 设置一个元素的选项信息
-     * @param ele		被设置的元素
-     * @param nextEle	递归设置的下一个元素(半递归)
-     * @param keys		当前设置的元素的数据
-     */
-    function setType(ele,keys) {
+    function setOneType() {
+        $("#onetype option").remove();
+        let keys=Object.keys(library);
         for (let i = 0; i < keys.length; i++) {
-            ele.append("<option value='"+keys[i]+"'>"+keys[i]+"</option>");
+            $("#onetype").append("<option value='"+keys[i]+"'>"+keys[i]+"</option>");
         }
     }
-
-    function oneTypeChange() {
+    function setTwotype() {
+        $("#twotype option").remove();
+        let onelastStr=$("#onetype").find("option:selected").text();
+        let lastSubObject=library[onelastStr];
+        let keys=Object.keys(lastSubObject);
+        for (let i = 0; i < keys.length; i++) {
+            $("#twotype").append("<option value='"+keys[i]+"'>"+keys[i]+"</option>");
+        }
+    }
+    function setThreetype() {
+        $("#threetype option").remove();
+        let onelastStr=$("#onetype").find("option:selected").text();
+        let twolastStr=$("#twotype").find("option:selected").text();
+        let lastSubObject=library[onelastStr][twolastStr];
+        let keys=Object.keys(lastSubObject);
+        for (let i = 0; i < keys.length; i++) {
+            $("#threetype").append("<option value='"+keys[i]+"'>"+keys[i]+"</option>");
+        }
+    }
+    function setFourtype() {
+        $("#fourtype option").remove();
+        let onelastStr=$("#onetype").find("option:selected").text();
+        let twolastStr=$("#twotype").find("option:selected").text();
+        let threelastStr=$("#threetype").find("option:selected").text();
+        let lastSubObject=library[onelastStr][twolastStr][threelastStr];
+        let keys=Object.keys(lastSubObject);
+        for (let i = 0; i < keys.length; i++) {
+            $("#fourtype").append("<option value='"+keys[i]+"'>"+keys[i]+"</option>");
+        }
 
     }
-    function twoTypeChange() {
-
-    }
-    function threeTypeChange() {
-
-    }
-    function fourTypeChange() {
-
-    }
-
 
 
     /**
