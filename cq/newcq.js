@@ -25,7 +25,7 @@ $(document).ready(function(e){
 				allPeopleStrs=this.result.split("\n");
                 parseInfoStr();
                 if (isEmpty(library)){
-                    alert("名单中没有符合规则的数据,请检查名单后再重新选择文件");
+                    alert("名单中没有符合规则的专家数据,请检查名单后再重新选择文件");
                     return;
                 }else {
                     $("#up").hide();
@@ -164,7 +164,7 @@ $(document).ready(function(e){
 
         let canGetNum=checkNum(onelastStr,twolastStr,threelastStr,fourlastStr);
 		if (canGetNum<neednum) {
-			alert("没有足够的人员进行抽取");
+			alert("当前类别剩余专家数目不足");
 			return;
 		}
 		showLoad("正在抽取中");
@@ -177,7 +177,7 @@ $(document).ready(function(e){
 			closeLoad();
             let peoples=getPeople(onelastStr,twolastStr,threelastStr,fourlastStr,neednum);
             if (peoples==null){
-                alert("剩余人数不足以抽取");
+                alert("当前类别剩余专家数目不足");
                 return;
             }
             let old=$("#dispay").html();
