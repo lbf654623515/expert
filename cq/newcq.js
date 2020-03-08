@@ -1,75 +1,34 @@
-function Engineer(){
-	let index;
-	let name;
-	let level;
-	let phone;
-	let zyAll;
-	let profession;
+function Pro(){
+    this.infoindex="" ,
+	this.proname="" ,
+	this.phone="" ,
+	this.level="",
+	this.com=""
 }
-
-function ProOne(){
-	let name;
-}
-
-function ProTwo(){
-    let name;
-    let pro1;
-}
-
-function ProThree(){
-    let name;
-    let pro2;
-}
-var array_Engineers=new Array();
-var array_ProOnes=new Array();
-var array_ProTwos=new Array();
-var array_ProThrees=new Array();
-
-
 $(document).ready(function(e){
     /**
-	 * 每一行原始数据
+     * 每一行原始数据
      */
-	var infos;
-	var bigarray=new Array();
-	var type=new Array();
+    let allPeopleStrs;									//每个人的原始信息字符串数组，里面每个元素为没解析前的一行文本
 
+	let library={};														//新的数据容器
 
 	$("#up").on("change",function(){//选择文件事件
 		//支持chrome IE10
 		if (window.FileReader) {
-			var file = this.files[0];
+			let file = this.files[0];
 			filename = file.name.split(".")[0];
-			var reader = new FileReader();
+			let reader = new FileReader();
 			reader.onload = function() {
-				infos=this.result.split("\n");
-				for(var y=0;y<infos.length;y++){
-					if(trim(infos[y]).length==0){
-						infos.splice(y,1);
-						y--;
-						continue;
-					}
-					var smlie=infos[y].split(/\s+/);
-					for(var sme=0;sme<smlie.length;sme++){
-						if(trim(smlie[sme]).length==0){
-							smlie.splice(sme,1);
-							sme--;
-						}
-					}
-					var sss=smlie[smlie.length-1].split('-');
-					smlie[smlie.length-1]=sss[0];
-					smlie[smlie.length]=sss[1];
-					
-					bigarray[y]=smlie;
-				}
+				allPeopleStrs=this.result.split("\n");
+                parseInfoStr();
 				inittype();
-				console.info(JSON.stringify(bigarray));
 			}
 			reader.readAsText(file);
 		} 
 		//支持IE 7 8 9 10
 		else if (typeof window.ActiveXObject != 'undefined'){
-			var xmlDoc; 
+			let xmlDoc;
 			xmlDoc = new ActiveXObject("Microsoft.XMLDOM"); 
 			xmlDoc.async = false; 
 			xmlDoc.load(this.value); 
@@ -77,7 +36,7 @@ $(document).ready(function(e){
 		} 
 		//支持FF
 		else if (document.implementation && document.implementation.createDocument) { 
-			var xmlDoc; 
+			let xmlDoc;
 			xmlDoc = document.implementation.createDocument("", "", null); 
 			xmlDoc.async = false; 
 			xmlDoc.load(this.value); 
@@ -87,9 +46,91 @@ $(document).ready(function(e){
 		}
 		$("#up").hide();
 	});
+
+
+    /**
+	 * 解析一行文本
+     */
+	function parseInfoStr(){
+        for(let peopleIndex=0;peopleIndex<allPeopleStrs.length;peopleIndex++){
+			let tempPeopleStr=allPeopleStrs[peopleIndex];
+            if(trim(tempPeopleStr).length==0){
+                allPeopleStrs.splice(peopleIndex,1);
+                peopleIndex--;
+                continue;
+            }
+            let peopleInfos=tempPeopleStr.split(/\s+/);								//单个人的数据分组
+
+            for(let infoindex=0;infoindex<peopleInfos.length;infoindex++){
+            	let info=peopleInfos[infoindex];
+                if(trim(info).length==0){
+                    peopleInfos.splice(infoindex,1);
+                    infoindex--;
+                }
+            }//清除单个人数组数组中的空白信息(分组中会产生空白数据分组)
+
+            let fields=peopleInfos[peopleInfos.length-1].split('-');
+            if (fields.length<2) continue;
+            peopleInfos[peopleInfos.length-1]=fields[0];
+            peopleInfos[peopleInfos.length]=fields[1];
+
+            let pro=new Pro();
+            pro.infoindex=peopleInfos[0];
+            pro.proname=peopleInfos[1];
+            pro.com=peopleInfos[2];
+            pro.level=peopleInfos[3];
+            pro.phone=peopleInfos[4];
+
+            haskey(library,fields[0],0);						//第一级专业是否加到顶级库里面
+
+            let tempobj=library[fields[0]];					//第二级专业是否加到第二级库里面
+            haskey(tempobj,fields[1],0);
+
+            tempobj=tempobj[fields[1]];							//第三级专业是否加到第三级库里面
+            haskey(tempobj,fields[2],0);
+
+            tempobj=tempobj[fields[2]];							//第四级专业是否加到第四级库里面,加到里面为数组
+            haskey(tempobj,fields[3],1);
+
+            tempobj=tempobj[fields[3]];
+            hasObject(tempobj,pro);
+        }
+	}
+
+	function haskey(object,key,valueType){
+		let has=false;
+        for(let a in object){
+            if (a===key){
+            	has=true;
+            	break;
+			}
+        }
+        if (!has){
+        	if (valueType===0){
+                object[key]={};
+			} else {
+                object[key]=[];
+			}
+		}
+	}
+
+    function hasObject(array,object){
+		let has=false;
+        for (let i = 0; i <array.length ; i++) {
+			let tempobj=array[i];
+			if (tempobj.proname===object.proname&&tempobj.phone===object.phone){
+				has=true;
+				break;
+			}
+        }
+        if (!has){
+            array[array.length]=object;
+		}else {
+		}
+    }
 	
 	$("#as").on("click",function(){//点击抽取事件
-		if(bigarray.length==0){
+		if(isEmpty(library)){
 			alert("还未导入名单，请先导入名单");
 			return;
 		}
@@ -97,8 +138,13 @@ $(document).ready(function(e){
 			alert("请输入正确的人数");
 			return;
 		}
-		
-		var linarray=getren($("#bigtype").find("option:selected").text(),$("#smtype").find("option:selected").text(),$("#renshu").val());
+
+        let onetypeStr=$("#onetype").find("option:selected").text();
+        let twotypeStr=$("#twotype").find("option:selected").text();
+        let threetypeStr=$("#threetype").find("option:selected").text();
+        let fourtypeStr=$("#fourtype").find("option:selected").text();
+		let num=$("#renshu").val();
+        let linarray=getren(onetypeStr,twotypeStr,num);
 		if (linarray==null) {
 			alert("没有足够的人员进行抽取");
 			return;
@@ -108,14 +154,13 @@ $(document).ready(function(e){
 	});
 	
 	function chouqu(linarray) {
-
 		setTimeout(function name() {
 			closeLoad();
-			var old=$("#dispay").html();
-			var htmlstr='<table><tr><td style="width: 15%;" colspan="1">'+$("#bigtype").find("option:selected").text()+'</td><td style="width: 15%;" colspan="1">'+$("#smtype").find("option:selected").text()+'</td><td style="width: 15%;" colspan="1">抽取结果</td></tr></table>';
-			var addstr=htmlstr+'<table border="1" style="text-align: center;">';
+            let old=$("#dispay").html();
+            let htmlstr='<table><tr><td style="width: 15%;" colspan="1">'+$("#onetype").find("option:selected").text()+'</td><td style="width: 15%;" colspan="1">'+$("#twotype").find("option:selected").text()+'</td><td style="width: 15%;" colspan="1">抽取结果</td></tr></table>';
+            let addstr=htmlstr+'<table border="1" style="text-align: center;">';
 
-			for (var int = 0; int < linarray.length; int++) {
+			for (let int = 0; int < linarray.length; int++) {
 				addstr+='<tr><td style="width: 1%;" colspan="1">'+linarray[int][0]+'</td>'+
 						'<td style="width: 3%;" colspan="1">'+linarray[int][1]+'</td>'+
 						'<td style="width: 15%;" colspan="1">'+linarray[int][2]+'</td>'+
@@ -125,35 +170,38 @@ $(document).ready(function(e){
 						'<td style="width: 5%;" colspan="1">'+linarray[int][6]+'</td></tr>';
 			}
 			addstr+='</table><br>'+old;
-			console.info(addstr);
 			$("#dispay").html(addstr);
 		},5000);
-
-		
 	}
+
+    /**
+	 * 进行抽取任务
+     * @param type1	抽取人员的第一级专业
+     * @param type2	抽取人员的第二级专业
+     * @param num		抽取人员的数目
+     * @returns {*}	返回的抽取对象
+     */
 	function getren(type1,type2,num) {
-		var num_=0;
-		var linarray=new Array();
-		for (var int = 0; int < bigarray.length; int++) {
-			if(bigarray[int][5]==type1&&bigarray[int][6]==type2){
+        let num_=0;
+        let linarray=[];
+		for (let int = 0; int < allPeopleInfoObjects.length; int++) {
+			if(allPeopleInfoObjects[int][5]==type1&&allPeopleInfoObjects[int][6]==type2){
 				num_++;
 			}
 		}
 		if(num_<num){
 			return ;
 		}
-
-
-		for (var int2 = 0; int2 < num; int2++) {
+		for (let int2 = 0; int2 < num; int2++) {
 
 			while(true){
-				var random=Math.floor(Math.random()*bigarray.length);//去一个范围为数组长度的随机数
-				var mmm=bigarray.splice(random,1);//把人员取出来
+                let random=Math.floor(Math.random()*allPeopleInfoObjects.length);//去一个范围为数组长度的随机数
+                let mmm=allPeopleInfoObjects.splice(random,1);//把人员取出来
 				if(mmm[0][5]==type1&&mmm[0][6]==type2){
 					linarray[int2]=mmm[0];
 					break;
 				}else{
-					bigarray.push(mmm[0]);
+					allPeopleInfoObjects.push(mmm[0]);
 				}
 			}
 
@@ -163,82 +211,100 @@ $(document).ready(function(e){
 	}
 	
 	function inittype() {
-		for (var int = 0; int < bigarray.length; int++) {
-			//以下代码判断大分类里面是否已经存在
-			var num=-1;//代表大分类的索引
-			for (var int2 = 0; int2 < type.length; int2++) {
-				if(type[int2].name==bigarray[int][5]){//如果大分类名字相同
-					num=int2;
-				}
-			}
-			if(num==-1){//如果大分类没有
-				var typeitem=new Object();
-				typeitem.types=new Array();
-				typeitem.types.push(bigarray[int][6]);
-				typeitem.name=bigarray[int][5];
-				type.push(typeitem);
-			}else{//如果大分类已经存在
-				var sm_num=-1;
-				for (var int3 = 0; int3 < type[num].types.length; int3++) {
-					if(type[num].types[int3]==bigarray[int][6]){
-						sm_num=int3;
-					}
-				}
-				if(sm_num==-1){
-					type[num].types.push(bigarray[int][6]);
-				}
-			}
+		if (isEmpty(library)){
+			alert("名单内数据为空,请重新选择名单");
+			return
 		}
-		$("#bigtype option").remove();
-		$("#smtype option").remove();
-		
-		for (var int4 = 0; int4 < type.length; int4++) {
-			$("#bigtype").append("<option value='"+int4+"'>"+type[int4].name+"</option>");
-		}
-		for (var int5 = 0; int5 < type[0].types.length; int5++) {
-			$("#smtype").append("<option value='"+int5+"'>"+type[0].types[int5]+"</option>");
-		}
-		$("#bigtype").change(function() {
-			var index=$("#bigtype").val();
-			$("#smtype option").remove();
-			for (var int5 = 0; int5 < type[index].types.length; int5++) {
-				$("#smtype").append("<option value='"+int5+"'>"+type[index].types[int5]+"</option>");
-			}
-		});
+
+        $("#onetype option").remove();
+        $("#twotype option").remove();
+        $("#threetype option").remove();
+        $("#fourtype option").remove();
+
+
+
+        let keys=Object.keys(library);
+        for (let i = 0; i < keys.length; i++) {
+            setOneType(keys[i]);
+        }
+
+        let lastStr=$("#onetype").find("option:selected").text();
+        let lastSubObject=library[lastStr];
+        keys=Object.keys(lastSubObject);
+        for (let i = 0; i < keys.length; i++) {
+            setTwotype(keys[i]);
+        }
+
+        lastStr=$("#twotype").find("option:selected").text();
+        lastSubObject=lastSubObject[lastStr];
+        keys=Object.keys(lastSubObject);
+        for (let i = 0; i < keys.length; i++) {
+            setThreetype(keys[i]);
+        }
+
+        lastStr=$("#threetype").find("option:selected").text();
+        lastSubObject=lastSubObject[lastStr];
+        keys=Object.keys(lastSubObject);
+        for (let i = 0; i < keys.length; i++) {
+            setFourtype(keys[i]);
+        }
+
+        $("#onetype").change(function() {
+            oneTypeChange();
+        });
+        $("#twotype").change(function() {
+            bigtypeChange();
+        });
+        $("#threetype").change(function() {
+            bigtypeChange();
+        });
+
 	}
-		
-	function trimRight(s){  
-	    if(s == null) return "";  
-	    var whitespace = new String(" \t\n\r");  
-	    var str = new String(s);  
-	    if (whitespace.indexOf(str.charAt(str.length-1)) != -1){  
-	        var i = str.length - 1;  
-	        while (i >= 0 && whitespace.indexOf(str.charAt(i)) != -1){  
-	           i--;  
-	        }  
-	        str = str.substring(0, i+1);  
-	    }  
-	    return str;  
-	} 
-	function trimLeft(s){  
-	    if(s == null) {  
-	        return "";  
-	    }  
-	    var whitespace = new String(" \t\n\r");  
-	    var str = new String(s);  
-	    if (whitespace.indexOf(str.charAt(0)) != -1) {  
-	        var j=0, i = str.length;  
-	        while (j < i && whitespace.indexOf(str.charAt(j)) != -1){  
-	            j++;  
-	        }  
-	        str = str.substring(j, i);  
-	    }  
-	    return str;  
-	}  
-	function trim(s){  
-	    return trimRight(trimLeft(s));  
-	} 
-	
+
+    function setOneType(value) {
+        $("#onetype").append("<option value='"+value+"'>"+value+"</option>");
+    }
+    function setTwotype(value) {
+        $("#twotype").append("<option value='"+value+"'>"+value+"</option>");
+    }
+    function setThreetype(value) {
+        $("#threetype").append("<option value='"+value+"'>"+value+"</option>");
+    }
+    function setFourtype(value) {
+        $("#fourtype").append("<option value='"+value+"'>"+value+"</option>");
+    }
+
+    /**
+	 * 设置一个元素的选项信息
+     * @param ele		被设置的元素
+     * @param nextEle	递归设置的下一个元素(半递归)
+     * @param keys		当前设置的元素的数据
+     */
+    function setType(ele,keys) {
+        for (let i = 0; i < keys.length; i++) {
+            ele.append("<option value='"+keys[i]+"'>"+keys[i]+"</option>");
+        }
+    }
+
+    function oneTypeChange() {
+
+    }
+    function twoTypeChange() {
+
+    }
+    function threeTypeChange() {
+
+    }
+    function fourTypeChange() {
+
+    }
+
+
+
+    /**
+	 * 旋转弹窗
+     * @param tipInfo
+     */
     function showLoad(tipInfo) {  
         var eTip = document.createElement('div');  
         eTip.setAttribute('id', 'tipDiv');  
@@ -257,9 +323,68 @@ $(document).ready(function(e){
         $("#tipDiv").css("float", "right");  
         $("#tipDiv").css("z-index", "99");  
         $('#tipDiv').fadeIn();
-    }  
-
+    }
+    /**
+	 * 关闭旋转弹窗
+     */
     function closeLoad() {  
         $('#tipDiv').fadeOut();  
-    }  
+    }
+    /**
+	 * 判断对象是不是为空
+     * @param object
+     * @returns {boolean}
+     */
+    function isEmpty(object) {
+        for(let a in object){
+            return false;
+        }
+        return true;
+    }
+    /**
+     * 对字符串清除右边的空格
+     * @param s
+     * @returns {*}
+     */
+    function trimRight(s){
+        if(s == null) return "";
+        var whitespace = new String(" \t\n\r");
+        var str = new String(s);
+        if (whitespace.indexOf(str.charAt(str.length-1)) != -1){
+            var i = str.length - 1;
+            while (i >= 0 && whitespace.indexOf(str.charAt(i)) != -1){
+                i--;
+            }
+            str = str.substring(0, i+1);
+        }
+        return str;
+    }
+    /**
+     * 对字符串清除左边的空格
+     * @param s
+     * @returns {*}
+     */
+    function trimLeft(s){
+        if(s == null) {
+            return "";
+        }
+        var whitespace = new String(" \t\n\r");
+        var str = new String(s);
+        if (whitespace.indexOf(str.charAt(0)) != -1) {
+            var j=0, i = str.length;
+            while (j < i && whitespace.indexOf(str.charAt(j)) != -1){
+                j++;
+            }
+            str = str.substring(j, i);
+        }
+        return str;
+    }
+    /**
+     * 清除空格
+     * @param s
+     * @returns {*}
+     */
+    function trim(s){
+        return trimRight(trimLeft(s));
+    }
 });
