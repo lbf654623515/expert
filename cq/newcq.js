@@ -1,7 +1,6 @@
 function Pro(){
     this.infoindex="" ,
 	this.proname="" ,
-	this.phone="" ,
 	this.level="",
 	this.com=""
 }
@@ -19,7 +18,7 @@ $(document).ready(function(e){
 		//支持chrome IE10
 		if (window.FileReader) {
 			let file = this.files[0];
-			filename = file.name.split(".")[0];
+			let filename = file.name.split(".")[0];
 			let reader = new FileReader();
 			reader.onload = function() {
 				allPeopleStrs=this.result.split("\n");
@@ -75,10 +74,10 @@ $(document).ready(function(e){
                     peopleInfos.splice(infoindex,1);
                     infoindex--;
                 }
-            }//清除单个人数组数组中的空白信息(分组中会产生空白数据分组)
+            }//清除单个人信息数组中每行信息前后空白信息(分组中会产生空白数据分组)
 
             let fields=peopleInfos[peopleInfos.length-1].split('-');
-            if (fields.length<=3) continue;
+            if (fields.length<3||peopleInfos.length!=5) continue;                                             //如果个人信息不足5部分，或者专业信息不足3部分，则这一行数据无效
             peopleInfos[peopleInfos.length-1]=fields[0];
             peopleInfos[peopleInfos.length]=fields[1];
 
@@ -87,7 +86,6 @@ $(document).ready(function(e){
             people.proname=peopleInfos[1];
             people.com=peopleInfos[2];
             people.level=peopleInfos[3];
-            people.phone=peopleInfos[4];
 
             haskey(library,fields[0],0);						//第一级专业是否加到顶级库里面
 
@@ -95,13 +93,12 @@ $(document).ready(function(e){
             haskey(tempobj,fields[1],0);
 
             tempobj=tempobj[fields[1]];							//第三级专业是否加到第三级库里面
-            haskey(tempobj,fields[2],0);
+            haskey(tempobj,fields[2],1);
 
-            tempobj=tempobj[fields[2]];							//第四级专业是否加到第四级库里面,加到里面为数组
-            haskey(tempobj,fields[3],1);
-
-            tempobj=tempobj[fields[3]];
+            tempobj=tempobj[fields[2]];
             hasObject(tempobj,people);
+
+            console.info();
         }
 	}
 
@@ -159,37 +156,35 @@ $(document).ready(function(e){
         let onelastStr=$("#onetype").find("option:selected").text();
         let twolastStr=$("#twotype").find("option:selected").text();
         let threelastStr=$("#threetype").find("option:selected").text();
-        let fourlastStr=$("#fourtype").find("option:selected").text();
 		let neednum=$("#renshu").val();
 
-        let canGetNum=checkNum(onelastStr,twolastStr,threelastStr,fourlastStr);
+        let canGetNum=checkNum(onelastStr,twolastStr,threelastStr);
 		if (canGetNum<neednum) {
 			alert("当前类别剩余专家数目不足");
 			return;
 		}
 		showLoad("正在抽取中");
-		setTimeout(chouqu(onelastStr,twolastStr,threelastStr,fourlastStr,neednum),10000000);
+		setTimeout(chouqu(onelastStr,twolastStr,threelastStr,neednum),10000000);
 	});
 	
-	function chouqu(onelastStr,twolastStr,threelastStr,fourlastStr,neednum) {
+	function chouqu(onelastStr,twolastStr,threelastStr,neednum) {
 
 		setTimeout(function name() {
 			closeLoad();
-            let peoples=getPeople(onelastStr,twolastStr,threelastStr,fourlastStr,neednum);
+            let peoples=getPeople(onelastStr,twolastStr,threelastStr,neednum);
             if (peoples==null){
                 alert("当前类别剩余专家数目不足");
                 return;
             }
             let old=$("#dispay").html();
-            let htmlstr='<table><tr><td style="width: 15%;" colspan="1">'+onelastStr+'</td><td style="width: 15%;" colspan="1">'+twolastStr+'</td><td style="width: 15%;" colspan="1">'+threelastStr+'</td><td style="width: 15%;" colspan="1">'+fourlastStr+'</td><td style="width: 15%;" colspan="1">抽取结果</td></tr></table>';
+            let htmlstr='<table><tr><td style="width: 15%;" colspan="1">'+onelastStr+'</td><td style="width: 15%;" colspan="1">'+twolastStr+'</td><td style="width: 15%;" colspan="1">'+threelastStr+'</td><td style="width: 15%;" colspan="1">抽取结果</td></tr></table>';
             let addstr=htmlstr+'<table border="1" style="text-align: center;">';
 
 			for (let index = 0; index < peoples.length; index++) {
 				addstr+='<tr><td style="width: 1%;" colspan="1">'+peoples[index].infoindex+'</td>'+
 						'<td style="width: 3%;" colspan="1">'+peoples[index].proname+'</td>'+
 						'<td style="width: 15%;" colspan="1">'+peoples[index].com+'</td>'+
-						'<td style="width: 5%;" colspan="1">'+peoples[index].level+'</td>'+
-						'<td style="width: 5%;" colspan="1">'+peoples[index].phone+'</td></tr>';
+						'<td style="width: 5%;" colspan="1">'+peoples[index].level+'</td></tr>';
 			}
 			addstr+='</table><br>'+old;
 			$("#dispay").html(addstr);
@@ -205,9 +200,9 @@ $(document).ready(function(e){
      * @param num		抽取人员的数目
      * @returns {*}	返回抽取的人员
      */
-	function getPeople(type1,type2,type3,type4,num) {
+	function getPeople(type1,type2,type3,num) {
         let linarray=[];
-        let peoples=library[type1][type2][type3][type4];
+        let peoples=library[type1][type2][type3];
 		if(peoples.length<num){
 			return ;
 		}
@@ -219,8 +214,8 @@ $(document).ready(function(e){
 		return linarray;
 	}
 
-	function checkNum(type1,type2,type3,type4) {
-        let peoples=library[type1][type2][type3][type4];
+	function checkNum(type1,type2,type3) {
+        let peoples=library[type1][type2][type3];
         return peoples.length;
     }
 	
@@ -232,26 +227,16 @@ $(document).ready(function(e){
         setOneType();
         setTwotype();
         setThreetype();
-        setFourtype();
-
 
         $("#onetype").change(function() {
             setTwotype();
             setThreetype();
-            setFourtype();
         });
         $("#twotype").change(function() {
             setThreetype();
-            setFourtype();
         });
         $("#threetype").change(function() {
-            setFourtype();
-        });
-        $("#fourtype").change(function() {
-            // let onelastStr=$("#onetype").find("option:selected").text();
-            // let twolastStr=$("#twotype").find("option:selected").text();
-            // let threelastStr=$("#threetype").find("option:selected").text();
-            // let fourlastStr=$("#fourtype").find("option:selected").text();
+
         });
 	}
 
@@ -280,18 +265,6 @@ $(document).ready(function(e){
         for (let i = 0; i < keys.length; i++) {
             $("#threetype").append("<option value='"+keys[i]+"'>"+keys[i]+"</option>");
         }
-    }
-    function setFourtype() {
-        $("#fourtype option").remove();
-        let onelastStr=$("#onetype").find("option:selected").text();
-        let twolastStr=$("#twotype").find("option:selected").text();
-        let threelastStr=$("#threetype").find("option:selected").text();
-        let lastSubObject=library[onelastStr][twolastStr][threelastStr];
-        let keys=Object.keys(lastSubObject);
-        for (let i = 0; i < keys.length; i++) {
-            $("#fourtype").append("<option value='"+keys[i]+"'>"+keys[i]+"</option>");
-        }
-
     }
 
 
