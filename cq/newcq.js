@@ -120,7 +120,7 @@ $(document).ready(function(e){
 	}
 
     /**
-     * 查看某个人员是否已经添加过，以姓名和电话号码进行区分，如果两个都相同则只录入第一个人
+     * 查看某个人员在最小分类名单中是否已经添加过，以姓名和电话号码进行区分，如果两个都相同则只录入第一个人
      * @param array
      * @param object
      */
@@ -128,7 +128,7 @@ $(document).ready(function(e){
 		let has=false;
         for (let i = 0; i <array.length ; i++) {
 			let tempobj=array[i];
-			if (tempobj.proname===object.proname&&tempobj.phone===object.phone){
+			if (tempobj.proname===object.proname&&tempobj.com===object.com&&tempobj.level===object.level){
 				has=true;
 				break;
 			}
