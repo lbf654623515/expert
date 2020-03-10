@@ -8,8 +8,8 @@ $(document).ready(function(e){
     /**
      * 每一行原始数据
      */
-    let allPeopleStrs;									//每个人的原始信息字符串数组，里面每个元素为没解析前的一行文本
-	let library={};														//新的数据容器
+    let library={};
+    let allPeopleStrs;
 
     /**
      * 打开文件，对打开的文件进行处理
@@ -32,24 +32,24 @@ $(document).ready(function(e){
 				inittype();
 			}
 			reader.readAsText(file);
-		} 
+		}
 		//支持IE 7 8 9 10
 		else if (typeof window.ActiveXObject != 'undefined'){
 			let xmlDoc;
-			xmlDoc = new ActiveXObject("Microsoft.XMLDOM"); 
-			xmlDoc.async = false; 
-			xmlDoc.load(this.value); 
-			alert(xmlDoc.xml); 
-		} 
-		//支持FF
-		else if (document.implementation && document.implementation.createDocument) { 
-			let xmlDoc;
-			xmlDoc = document.implementation.createDocument("", "", null); 
-			xmlDoc.async = false; 
-			xmlDoc.load(this.value); 
+			xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+			xmlDoc.async = false;
+			xmlDoc.load(this.value);
 			alert(xmlDoc.xml);
-		} else { 
-			alert('error'); 
+		}
+		//支持FF
+		else if (document.implementation && document.implementation.createDocument) {
+			let xmlDoc;
+			xmlDoc = document.implementation.createDocument("", "", null);
+			xmlDoc.async = false;
+			xmlDoc.load(this.value);
+			alert(xmlDoc.xml);
+		} else {
+			alert('error');
 		}
 
 	});
@@ -138,7 +138,7 @@ $(document).ready(function(e){
 		}else {
 		}
     }
-	
+
 	$("#as").on("click",function(){//点击抽取事件
 		if(isEmpty(library)){
 			alert("还未导入名单，请先导入名单");
@@ -166,7 +166,7 @@ $(document).ready(function(e){
 		showLoad("正在抽取中");
 		setTimeout(chouqu(onelastStr,twolastStr,threelastStr,neednum),10000000);
 	});
-	
+
 	function chouqu(onelastStr,twolastStr,threelastStr,neednum) {
 
 		setTimeout(function name() {
@@ -176,18 +176,47 @@ $(document).ready(function(e){
                 alert("当前类别剩余专家数目不足");
                 return;
             }
-            let old=$("#dispay").html();
-            let htmlstr='<table><tr><td style="width: 15%;" colspan="1">'+onelastStr+'</td><td style="width: 15%;" colspan="1">'+twolastStr+'</td><td style="width: 15%;" colspan="1">'+threelastStr+'</td><td style="width: 15%;" colspan="1">抽取结果</td></tr></table>';
-            let addstr=htmlstr+'<table border="1" style="text-align: center;">';
 
-			for (let index = 0; index < peoples.length; index++) {
-				addstr+='<tr><td style="width: 1%;" colspan="1">'+peoples[index].infoindex+'</td>'+
-						'<td style="width: 3%;" colspan="1">'+peoples[index].proname+'</td>'+
-						'<td style="width: 15%;" colspan="1">'+peoples[index].com+'</td>'+
-						'<td style="width: 5%;" colspan="1">'+peoples[index].level+'</td></tr>';
-			}
-			addstr+='</table><br>'+old;
-			$("#dispay").html(addstr);
+            let titletable=document.createElement("table");
+            titletable.setAttribute("class","tabletitle");
+            let titletr=document.createElement("tr");
+            let titletr_1=document.createElement("td");
+            let titletr_2=document.createElement("td");
+            let titletr_3=document.createElement("td");
+            let titletr_4=document.createElement("td");
+            titletr_1.innerText=onelastStr;
+            titletr_2.innerText=twolastStr;
+            titletr_3.innerText=threelastStr;
+            titletr_4.innerText="抽取结果";
+            titletr.appendChild(titletr_1)
+            titletr.appendChild(titletr_2)
+            titletr.appendChild(titletr_3)
+            titletr.appendChild(titletr_4)
+            titletable.appendChild(titletr);
+            $("#dispay")[0].appendChild(titletable);
+
+            let datatable=document.createElement("table");
+            datatable.setAttribute("class","tableData");
+            for (let index = 0; index <peoples.length ; index++) {
+                let datatr=document.createElement("tr");
+                let datatd_1=document.createElement("td");
+                let datatd_2=document.createElement("td");
+                let datatd_3=document.createElement("td");
+                let datatd_4=document.createElement("td");
+                datatd_1.innerText=peoples[index].infoindex;
+                datatd_2.innerText=peoples[index].proname;
+                datatd_3.innerText=peoples[index].com;
+                datatd_4.innerText=peoples[index].level;
+                datatr.appendChild(datatd_1);
+                datatr.appendChild(datatd_2);
+                datatr.appendChild(datatd_3);
+                datatr.appendChild(datatd_4);
+                datatable.appendChild(datatr);
+            }
+            $("#dispay")[0].appendChild(datatable);
+
+            $("#dispay")[0].appendChild(document.createElement("br"));
+
 		},5000);
 	}
 
@@ -218,7 +247,7 @@ $(document).ready(function(e){
         let peoples=library[type1][type2][type3];
         return peoples.length;
     }
-	
+
 	function inittype() {
 		if (isEmpty(library)){
 			alert("名单内数据为空,请重新选择名单");
@@ -272,30 +301,30 @@ $(document).ready(function(e){
 	 * 旋转弹窗
      * @param tipInfo
      */
-    function showLoad(tipInfo) {  
-        var eTip = document.createElement('div');  
-        eTip.setAttribute('id', 'tipDiv');  
-        eTip.style.position = 'absolute';  
-        eTip.style.display = 'none';  
-        eTip.style.border = 'solid 0px #D1D1D1';  
+    function showLoad(tipInfo) {
+        var eTip = document.createElement('div');
+        eTip.setAttribute('id', 'tipDiv');
+        eTip.style.position = 'absolute';
+        eTip.style.display = 'none';
+        eTip.style.border = 'solid 0px #D1D1D1';
         eTip.style.backgroundColor = '#4B981D';
-        eTip.style.top = '300px';  
-        eTip.style.left = '45%';  
+        eTip.style.top = '300px';
+        eTip.style.left = '45%';
         eTip.style.borderRadius="25px";
         eTip.style.textAlign="center";
-        eTip.innerHTML = '<img src=\'./loader.gif\' style=\'float:left;border-radius:15px;\'/><br><H1>'+tipInfo+'<H1>';  
-        try {  
-            document.body.appendChild(eTip);  
-        } catch (e) { }  
-        $("#tipDiv").css("float", "right");  
-        $("#tipDiv").css("z-index", "99");  
+        eTip.innerHTML = '<img src=\'./loader.gif\' style=\'float:left;border-radius:15px;\'/><br><H1>'+tipInfo+'<H1>';
+        try {
+            document.body.appendChild(eTip);
+        } catch (e) { }
+        $("#tipDiv").css("float", "right");
+        $("#tipDiv").css("z-index", "99");
         $('#tipDiv').fadeIn();
     }
     /**
 	 * 关闭旋转弹窗
      */
-    function closeLoad() {  
-        $('#tipDiv').fadeOut();  
+    function closeLoad() {
+        $('#tipDiv').fadeOut();
     }
     /**
 	 * 判断对象是不是为空

@@ -1,0 +1,20 @@
+.tabletitle{
+
+}
+.tabletitle td{
+    width: 15%;
+    column-span: 1;
+}
+.tableData{
+    width: 100%;
+    border: 1px black solid;
+}
+.tableData tr{
+    width: auto;
+    border: 1px black solid;
+}
+.tableData td{
+    width: 25%;
+    border: 1px black solid;
+    text-align: center;
+}
