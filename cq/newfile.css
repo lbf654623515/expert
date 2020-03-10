@@ -14,7 +14,24 @@
     border: 1px black solid;
 }
 .tableData td{
-    width: 25%;
     border: 1px black solid;
+}
+.index{
+    width: 10%;
     text-align: center;
+}
+.name{
+    width: 30%;
+    text-align: left;
+    padding-left: 20px;
+}
+.com{
+    width: 30%;
+    text-align: left;
+    padding-left: 20px;
+}
+.level{
+    width: 30%;
+    text-align: left;
+    padding-left: 20px;
 }

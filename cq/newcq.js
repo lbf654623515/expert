@@ -1,7 +1,6 @@
 function Pro(){
     this.infoindex="" ,
 	this.proname="" ,
-	this.level="",
 	this.com=""
 }
 $(document).ready(function(e){
@@ -77,7 +76,7 @@ $(document).ready(function(e){
             }//清除单个人信息数组中每行信息前后空白信息(分组中会产生空白数据分组)
 
             let fields=peopleInfos[peopleInfos.length-1].split('-');
-            if (fields.length<3||peopleInfos.length!=5) continue;                                             //如果个人信息不足5部分，或者专业信息不足3部分，则这一行数据无效
+            if (fields.length<3||peopleInfos.length!=4) continue;                                             //如果个人信息不足5部分，或者专业信息不足3部分，则这一行数据无效
             peopleInfos[peopleInfos.length-1]=fields[0];
             peopleInfos[peopleInfos.length]=fields[1];
 
@@ -85,7 +84,6 @@ $(document).ready(function(e){
             people.infoindex=peopleInfos[0];
             people.proname=peopleInfos[1];
             people.com=peopleInfos[2];
-            people.level=peopleInfos[3];
 
             haskey(library,fields[0],0);						//第一级专业是否加到顶级库里面
 
@@ -128,7 +126,7 @@ $(document).ready(function(e){
 		let has=false;
         for (let i = 0; i <array.length ; i++) {
 			let tempobj=array[i];
-			if (tempobj.proname===object.proname&&tempobj.com===object.com&&tempobj.level===object.level){
+			if (tempobj.proname===object.proname&&tempobj.com===object.com){
 				has=true;
 				break;
 			}
@@ -200,13 +198,17 @@ $(document).ready(function(e){
             for (let index = 0; index <peoples.length ; index++) {
                 let datatr=document.createElement("tr");
                 let datatd_1=document.createElement("td");
+                datatd_1.setAttribute("class","index");
                 let datatd_2=document.createElement("td");
+                datatd_2.setAttribute("class","name");
                 let datatd_3=document.createElement("td");
+                datatd_3.setAttribute("class","com");
                 let datatd_4=document.createElement("td");
+                datatd_4.setAttribute("class","level");
                 datatd_1.innerText=peoples[index].infoindex;
                 datatd_2.innerText=peoples[index].proname;
                 datatd_3.innerText=peoples[index].com;
-                datatd_4.innerText=peoples[index].level;
+                datatd_4.innerText="高级工程师";
                 datatr.appendChild(datatd_1);
                 datatr.appendChild(datatd_2);
                 datatr.appendChild(datatd_3);
