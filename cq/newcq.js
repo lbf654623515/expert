@@ -175,6 +175,7 @@ $(document).ready(function(e){
                 return;
             }
 
+            $("#dispay")[0].prepend(document.createElement("br"));
             let titletable=document.createElement("table");
             titletable.setAttribute("class","tabletitle");
             let titletr=document.createElement("tr");
@@ -191,7 +192,6 @@ $(document).ready(function(e){
             titletr.appendChild(titletr_3)
             titletr.appendChild(titletr_4)
             titletable.appendChild(titletr);
-            $("#dispay")[0].appendChild(titletable);
 
             let datatable=document.createElement("table");
             datatable.setAttribute("class","tableData");
@@ -215,9 +215,10 @@ $(document).ready(function(e){
                 datatr.appendChild(datatd_4);
                 datatable.appendChild(datatr);
             }
-            $("#dispay")[0].appendChild(datatable);
+            $("#dispay")[0].prepend(datatable);
 
-            $("#dispay")[0].appendChild(document.createElement("br"));
+
+            $("#dispay")[0].prepend(titletable);
 
 		},10);
 	}
