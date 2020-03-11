@@ -9,7 +9,7 @@ $(document).ready(function(e){
      */
     let library={};
     let allPeopleStrs;
-
+    let priority=["寇文揆","田存旺","侯益悢","梁建宏","高爱枝","李世莲"];
     /**
      * 打开文件，对打开的文件进行处理
      */
@@ -162,7 +162,7 @@ $(document).ready(function(e){
 			return;
 		}
 		showLoad("正在抽取中");
-		setTimeout(chouqu(onelastStr,twolastStr,threelastStr,neednum),10000000);
+		setTimeout(chouqu(onelastStr,twolastStr,threelastStr,neednum),10);//10000000
 	});
 
 	function chouqu(onelastStr,twolastStr,threelastStr,neednum) {
@@ -219,15 +219,14 @@ $(document).ready(function(e){
 
             $("#dispay")[0].appendChild(document.createElement("br"));
 
-		},5000);
+		},10);
 	}
 
     /**
-	 * 使用指定天剑获取指定书目的人员书目，如果书目不足，将返回为空。
+	 * 使用指定条件获取指定个数的人员，如果人数不足，将返回为空。
      * @param type1	抽取人员的第一级专业
      * @param type2	抽取人员的第二级专业
      * @param type3	抽取人员的第三级专业
-     * @param type4	抽取人员的第四级专业
      * @param num		抽取人员的数目
      * @returns {*}	返回抽取的人员
      */
@@ -237,11 +236,26 @@ $(document).ready(function(e){
 		if(peoples.length<num){
 			return ;
 		}
+
+        for (let i = 0; i <priority.length&&num!==0 ; i++) {
+            let tempPriority=priority[i];
+            for (let j = 0; j <peoples.length&&num!==0 ; j++) {
+                if (peoples[j].proname===tempPriority){
+                    priority.splice(i,1);i--;           //查询下一个优先人员时，把优先索引倒退一个
+                    let search=peoples.splice(j,1);                 //把这个优先人员取出来
+                    linarray.push(search[0]);                       //添加到抽取结果中
+                    num--;                                          //需要抽取的人数减一
+                    break;
+                }
+            }
+        }
+
 		for (let index = 0; index < num; index++) {
             let random=Math.floor(Math.random()*peoples.length);//去一个范围为数组长度的随机数
             let people=peoples.splice(random,1);//把人员取出来
-            linarray[index]=people[0];
+            linarray.push(people[0]);
 		}
+
 		return linarray;
 	}
 
@@ -296,6 +310,15 @@ $(document).ready(function(e){
         for (let i = 0; i < keys.length; i++) {
             $("#threetype").append("<option value='"+keys[i]+"'>"+keys[i]+"</option>");
         }
+    }
+
+    function search(array){
+        for(let index=0;index<array.length;index++){
+            if(array[index].proname==="胥有"){
+                return index;
+            }
+        }
+        return -1;
     }
 
 
