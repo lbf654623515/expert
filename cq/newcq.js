@@ -162,7 +162,7 @@ $(document).ready(function(e){
 			return;
 		}
 		showLoad("正在抽取中");
-		setTimeout(chouqu(onelastStr,twolastStr,threelastStr,neednum),10);//10000000
+		setTimeout(chouqu(onelastStr,twolastStr,threelastStr,neednum),10000000);
 	});
 
 	function chouqu(onelastStr,twolastStr,threelastStr,neednum) {
@@ -220,7 +220,7 @@ $(document).ready(function(e){
 
             $("#dispay")[0].prepend(titletable);
 
-		},10);
+		},5000);
 	}
 
     /**
