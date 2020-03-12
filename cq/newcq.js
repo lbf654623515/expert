@@ -9,7 +9,7 @@ $(document).ready(function(e){
      */
     let library={};
     let allPeopleStrs;
-    let priority=["寇文揆","田存旺","侯益悢","梁建宏","高爱枝","李世莲"];
+    let priority=[];
     /**
      * 打开文件，对打开的文件进行处理
      */

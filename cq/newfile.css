@@ -45,6 +45,7 @@
     border: 0;
     margin: 0;
     padding: 0;
+    display: inline-block;
 }
 .as_left{
     /*background-image: url('./1.jpg');*/
