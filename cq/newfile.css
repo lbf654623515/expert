@@ -36,7 +36,7 @@
     padding-left: 20px;
 }
 .as{
-    width: 50px;
+    width: 100px;
     height: 100px;
     background-color: black;
     background-repeat: no-repeat;
@@ -46,12 +46,6 @@
     margin: 0;
     padding: 0;
     display: inline-block;
-}
-.as_left{
-    /*background-image: url('./1.jpg');*/
-    border-radius:15px 0 0 15px;
-}
-.as_right{
-    /*background-image: url('./2.jpg');*/
-    border-radius:0 15px 15px 0;
+    border-radius:15px;
+    background-image: url('./button.jpg');
 }
