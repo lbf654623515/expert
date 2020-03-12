@@ -35,3 +35,22 @@
     text-align: left;
     padding-left: 20px;
 }
+.as{
+    width: 50px;
+    height: 100px;
+    background-color: black;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    text-align: center;
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+.as_left{
+    /*background-image: url('./1.jpg');*/
+    border-radius:15px 0 0 15px;
+}
+.as_right{
+    /*background-image: url('./2.jpg');*/
+    border-radius:0 15px 15px 0;
+}
