@@ -9,7 +9,7 @@ $(document).ready(function(e){
      */
     let library={};
     let allPeopleStrs;
-    let priority=[];
+    let priority=["苏布达","王乐波","田存旺","曲萍","高琴","黄国龙","刘文萍","高爱枝","李世莲"];                             //优先人员名单
     /**
      * 打开文件，对打开的文件进行处理
      */
