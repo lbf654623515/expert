@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta name="viewport" content="width=device-width, initial"/>
+<meta charset="UTF-8">
+<title>抽取页面</title>
+
+	<script type="text/javascript" src="./jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="./newcq.js"></script>
+	<link rel="stylesheet" href="newfile.css">
+</head>
+<body background="./timg.jpg">
+	<ul style="text-align: center; padding-left: 0px; padding-right: 0px;">
+		<h1 style="color: #FF0000;">评标专家抽取系统</h1>
+	</ul>
+	<ul style="text-align: center;">
+		<input type="file" id="up" />
+	</ul>
+	<table style="width: 100%;text-align: center;" border="1">
+	<tr>
+		<td style="text-align: center;width: 25%" >
+			一级类别:<select id="onetype">
+			<option>请先选择抽取名单</option>
+			</select>
+		</td>
+		<td style="text-align: center;width: 25%;">
+			二级类别:<select id="twotype">
+			<option>请先选择抽取名单</option>
+		</select>
+		</td>
+		<td style="text-align: center;width: 25%;">
+			三级类别:<select id="threetype">
+			<option>请先选择抽取名单</option>
+		</select>
+		</td>
+		<td style="text-align: center;width: 25%;">
+			人数:<input type="number" id="renshu" value="1">
+		</td>
+	</tr>
+	</table>
+	<table style="width: 100%;text-align: center;">
+	<tr>
+		<td style="font-size: 0">
+			<div class="as" id="as"></div>
+		</td>
+	</tr>
+	</table>
+	<div id="dispay" style="width: 100%;background-color: #F2F2F2;overflow: scroll;height: 30em;">
+
+	</div>
+<!--	<button class="astest as_left" src="1.jpg"></button><button class="astest as_right" src="2.jpg"></button>-->
+</body>
+
+</html>
